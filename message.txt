@@ -1,0 +1,7 @@
+j_cruz|m_reyes|Project Update|Hey Maria, are you done with the User Module?|0
+m_reyes|j_cruz|Re: Project Update|Almost done! Just fixing the bugs.|0
+admin_tester|ALL|System Maintenance|The server will be down for 10 minutes.|1
+l_santos|j_cruz,m_reyes|Group Lunch?|Lets go eat at the canteen at 12.|0
+speed_racer|pro_gamer|Ranked Game|Do you want to play tonight?|0
+pro_gamer|speed_racer|Re: Ranked Game|Sure, invite me later.|0
+j_cruz|ALL|Lost ID|Has anyone seen a blue ID lace?|1

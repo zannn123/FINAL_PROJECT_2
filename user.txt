@@ -1,0 +1,6 @@
+j_cruz|pizza123|Juan Cruz|DEFAULT USER|dog|0|m_reyes,l_santos
+m_reyes|ilovecats|Maria Reyes|Hello! I love coding.|manila|0|j_cruz
+l_santos|pass5555|Luigi Santos|Future Engineer|blue|0|j_cruz,admin_tester
+speed_racer|racecar|Speedy Boi|DEFAULT USER|red|1|
+admin_tester|admin123|Test Admin|I check for bugs|secret|0|l_santos
+pro_gamer|ggwp123|Gamer One|Esports Player|keyboard|0|
