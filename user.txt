@@ -4,3 +4,46 @@ l_santos|pass5555|Luigi Santos|Future Engineer|blue|0|j_cruz,admin_tester
 speed_racer|racecar|Speedy Boi|DEFAULT USER|red|1|
 admin_tester|admin123|Test Admin|I check for bugs|secret|0|l_santos
 pro_gamer|ggwp123|Gamer One|Esports Player|keyboard|0|
+anna_lee|pass1001|Anna Lee|DEFAULT USER|cat|0|mark_sy
+mark_sy|pass1002|Mark Sy|DEFAULT USER|car|0|anna_lee,ben_lim
+ben_lim|pass1003|Ben Lim|I like coffee|coffee|0|mark_sy
+clara_tan|pass1004|Clara Tan|DEFAULT USER|moon|0|
+dan_yap|pass1005|Dan Yap|DEFAULT USER|sun|0|eve_ramos
+eve_ramos|pass1006|Eve Ramos|Artist at heart|art|0|dan_yap
+frank_co|pass1007|Frank Co|DEFAULT USER|pen|1|
+grace_go|pass1008|Grace Go|DEFAULT USER|book|0|henry_liu
+henry_liu|pass1009|Henry Liu|Gamer 4 Life|game|0|grace_go,ivy_chen
+ivy_chen|pass1010|Ivy Chen|DEFAULT USER|tech|0|henry_liu
+jack_tan|pass1011|Jack Tan|DEFAULT USER|bike|0|
+kate_dy|pass1012|Kate Dy|DEFAULT USER|music|0|leo_ang
+leo_ang|pass1013|Leo Ang|Musician|guitar|0|kate_dy
+mia_see|pass1014|Mia See|DEFAULT USER|food|0|
+noah_lim|pass1015|Noah Lim|DEFAULT USER|star|0|olivia_choi
+olivia_choi|pass1016|Olivia Choi|DEFAULT USER|sky|0|noah_lim
+paul_wang|pass1017|Paul Wang|DEFAULT USER|cloud|0|
+quinn_xu|pass1018|Quinn Xu|DEFAULT USER|rain|0|rose_han
+rose_han|pass1019|Rose Han|DEFAULT USER|flower|0|quinn_xu
+sam_kim|pass1020|Sam Kim|DEFAULT USER|tree|0|tara_park
+tara_park|pass1021|Tara Park|DEFAULT USER|leaf|0|sam_kim
+uma_song|pass1022|Uma Song|DEFAULT USER|bird|0|
+victor_wu|pass1023|Victor Wu|DEFAULT USER|fish|0|wendy_zhao
+wendy_zhao|pass1024|Wendy Zhao|DEFAULT USER|ocean|0|victor_wu
+xander_li|pass1025|Xander Li|DEFAULT USER|mountain|0|yara_chang
+yara_chang|pass1026|Yara Chang|DEFAULT USER|river|0|xander_li
+zack_ng|pass1027|Zack Ng|DEFAULT USER|stone|0|
+juan_dizon|pass1028|Juan Dizon|DEFAULT USER|sand|0|maria_lopez
+maria_lopez|pass1029|Maria Lopez|DEFAULT USER|glass|0|juan_dizon
+luigi_santos|pass1030|Luigi Santos|DEFAULT USER|metal|0|
+jose_reyes|pass1031|Jose Reyes|DEFAULT USER|wood|0|ana_torres
+ana_torres|pass1032|Ana Torres|DEFAULT USER|fire|0|jose_reyes
+mark_garcia|pass1033|Mark Garcia|DEFAULT USER|water|0|
+ben_flores|pass1034|Ben Flores|DEFAULT USER|wind|0|clara_rivera
+clara_rivera|pass1035|Clara Rivera|DEFAULT USER|earth|0|ben_flores
+dan_castillo|pass1036|Dan Castillo|DEFAULT USER|light|0|
+eve_villanueva|pass1037|Eve Villanueva|DEFAULT USER|shadow|0|frank_fernandez
+frank_fernandez|pass1038|Frank Fernandez|DEFAULT USER|day|0|eve_villanueva
+grace_deleon|pass1039|Grace DeLeon|DEFAULT USER|night|0|
+henry_tolentino|pass1040|Henry Tolentino|DEFAULT USER|summer|0|
+ivy_ocampo|pass1041|Ivy Ocampo|DEFAULT USER|winter|0|
+jack_gonzales|pass1042|Jack Gonzales|DEFAULT USER|autumn|0|
+kate_sy|pass1043|Kate Sy|DEFAULT USER|spring|0|
