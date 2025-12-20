@@ -9,4 +9,6 @@ add_executable(FINAL_PROJECT_2
         file_handler.cpp
         file_handler.h
         globals.h
+        ui_core.cpp
+        ui_core.h
 )
