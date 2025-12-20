@@ -1,15 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(FINAL_PROJECT_2 C)
+project(FINAL_PROJECT_2 CXX)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
 
 add_executable(FINAL_PROJECT_2
-        main.h
-        ui_core.c
-        ui_core.h
-        globals.h
-        file_handler.h
+       main.cpp
         file_handler.cpp
-        main.cpp
+        file_handler.h
+        globals.h
 )

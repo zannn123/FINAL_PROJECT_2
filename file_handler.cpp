@@ -1,3 +1,7 @@
+//
+// Created by DjMhel on 20/12/2025.
+//
+
 #include "file_handler.h"
 #include <fstream>
 #include <sstream>
@@ -5,8 +9,8 @@
 
 using namespace std;
 
-const string USER_FILE = "users.txt";
-const string MSG_FILE = "messages.txt";
+const string USER_FILE = "user.txt";
+const string MSG_FILE = "message.txt";
 
 // Helper to split commas (for friend lists)
 vector<string> split(string s, char delimiter) {
@@ -22,7 +26,7 @@ vector<string> split(string s, char delimiter) {
 void loadUsers(UserMap& users) {
     users.clear(); // Clear old data
     ifstream file(USER_FILE);
-    
+
     if (!file.is_open()) {
         cout << "[Warning] Could not open users database.\n";
         return;
@@ -34,26 +38,26 @@ void loadUsers(UserMap& users) {
 
         stringstream ss(line);
         User u;
-        
+
         // Parse the line just like before...
         getline(ss, u.username, '|');
         getline(ss, u.password, '|');
         getline(ss, u.realName, '|');
         getline(ss, u.description, '|');
         getline(ss, u.securityAnswer, '|');
-        
+
         string lockedStr;
         getline(ss, lockedStr, '|');
         u.isLocked = (lockedStr == "1");
 
         string connStr;
-        getline(ss, connStr); 
+        getline(ss, connStr);
         u.connections = split(connStr, ',');
 
         // --- HASHING HAPPENS HERE ---
         // We insert the user into the map using their username as the Key.
         // This calculates the hash instantly.
-        users[u.username] = u; 
+        users[u.username] = u;
     }
     file.close();
     cout << "[System] Loaded " << users.size() << " users into Hash Map.\n";

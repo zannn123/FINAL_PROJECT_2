@@ -4,7 +4,6 @@
 
 #ifndef FINAL_PROJECT_2_GLOBALS_H
 #define FINAL_PROJECT_2_GLOBALS_H
-
 #include <string>
 #include <vector>
 #include <unordered_map> // <--- THIS IS THE HASHING LIBRARY
@@ -34,5 +33,4 @@ struct Message {
 // Key (string) = Username
 // Value (User) = The User Data
 using UserMap = unordered_map<string, User>;
-
 #endif //FINAL_PROJECT_2_GLOBALS_H

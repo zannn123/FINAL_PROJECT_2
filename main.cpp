@@ -1,3 +1,8 @@
+//
+// Created by DjMhel on 20/12/2025.
+//
+
+#include "main.h"
 #include <iostream>
 #include "globals.h"
 #include "file_handler.h"
@@ -6,7 +11,7 @@ using namespace std;
 
 int main() {
     // 1. Declare the Hash Map
-    UserMap users; 
+    UserMap users;
     vector<Message> messages;
 
     // 2. Load Data (Hashing happens automatically here)
@@ -15,7 +20,7 @@ int main() {
 
     // --- DEMO: THE POWER OF HASHING ---
     // Finding a user is now INSTANT (No loops needed!)
-    
+
     string target = "paul_castillo_0"; // One of your users
 
     if (users.find(target) != users.end()) {
