@@ -1,0 +1,8 @@
+//
+// Created by DjMhel on 20/12/2025.
+//
+
+#ifndef FINAL_PROJECT_2_FILE_HANDLER_H
+#define FINAL_PROJECT_2_FILE_HANDLER_H
+
+#endif //FINAL_PROJECT_2_FILE_HANDLER_H
