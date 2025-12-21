@@ -21,7 +21,7 @@ int main() {
     // --- DEMO: THE POWER OF HASHING ---
     // Finding a user is now INSTANT (No loops needed!)
 
-    string target = "paul_castillo_0"; // One of your users
+    string target = "yara_villanueva_239"; // One of your users
 
     if (users.find(target) != users.end()) {
         // FOUND THEM INSTANTLY!

@@ -91,5 +91,30 @@ void saveUsers(const UserMap& users) {
 
 // (Keep loadMessages/saveMessages the same as before, they use Vectors)
 // I will omit them here to save space, but you need them!
-void loadMessages(vector<Message>& messages) { /* ... same code ... */ }
+void loadMessages(vector<Message>& messages) {
+    messages.clear();
+    ifstream file(MSG_FILE);
+    if (!file.is_open()) return;
+
+    string line;
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+        stringstream ss(line);
+        Message m;
+
+        getline(ss, m.sender, '|');
+        getline(ss, m.recipient, '|');
+        getline(ss, m.subject, '|');
+        getline(ss, m.content, '|');
+
+        string annStr;
+        getline(ss, annStr);
+        m.isAnnouncement = (annStr == "1");
+
+        messages.push_back(m);
+    }
+    file.close();
+}
+
+
 void saveMessages(const vector<Message>& messages) { /* ... same code ... */ }
