@@ -1,65 +1,64 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "globals.h"
-#include "file_handler.h"
+#include <iomanip>
+#include "globals.h"      // Contains UserMap and Message structs
+#include "file_handler.h"  // Contains loadUsers and loadMessages
 
 using namespace std;
 
 int main() {
-    // 1. Initialize data structures
+    // 1. DATA STRUCTURES
     UserMap users;
     vector<Message> messages;
 
-    // 2. Load data from text files
+    // 2. LOAD DATA
+    // This pulls from your user.txt and the newly generated message.txt
     loadUsers(users);
     loadMessages(messages);
 
-    cout << "==========================================================" << endl;
-    cout << "                MASTER MESSAGE LOG REPORT                 " << endl;
-    cout << "==========================================================" << endl;
+    cout << "============================================================" << endl;
+    cout << "                USER OUTBOX VERIFICATION REPORT             " << endl;
+    cout << "============================================================" << endl;
 
-    // 3. DISPLAY EVERY MESSAGE IN THE DATABASE
-    if (messages.empty()) {
-        cout << "[!] No messages found in message.txt" << endl;
-    } else {
-        cout << "TOTAL MESSAGES FOUND: " << messages.size() << "\n" << endl;
-
-        for (size_t i = 0; i < messages.size(); i++) {
-            const auto& m = messages[i];
-
-            cout << "Message #" << (i + 1) << ":" << endl;
-            cout << "  FROM:    " << m.sender << " (" << (users.count(m.sender) ? users[m.sender].realName : "Unknown") << ")" << endl;
-            cout << "  TO:      " << m.recipient << " (" << (users.count(m.recipient) ? users[m.recipient].realName : "Unknown") << ")" << endl;
-            cout << "  SUBJECT: " << m.subject << endl;
-            cout << "  CONTENT: " << m.content << endl;
-            cout << "  TYPE:    " << (m.isAnnouncement ? "ANNOUNCEMENT" : "PRIVATE CHAT") << endl;
-            cout << "----------------------------------------------------------" << endl;
-        }
+    if (users.empty()) {
+        cout << "[ERROR] No users found. Check your user.txt file path." << endl;
+        return 1;
     }
 
-    // 4. USER-CENTRIC VIEW (RELATIONSHIP CHECK)
-    cout << "\n\n==========================================================" << endl;
-    cout << "             USER RELATIONSHIP SUMMARY                    " << endl;
-    cout << "==========================================================" << endl;
-
+    // 3. ITERATE THROUGH EVERY USER
     for (auto const& [username, data] : users) {
-        cout << "\nUSER: " << data.username << " (" << data.realName << ")" << endl;
+        cout << "\n[USER]: " << left << setw(15) << data.username
+             << " | NAME: " << data.realName << endl;
 
-        bool found = false;
+        bool foundSent = false;
+        int sentCount = 0;
+
+        // 4. FILTER MESSAGES BY SENDER
         for (const auto& msg : messages) {
-            // Check if current user is involved in the message
-            if (msg.sender == username || msg.recipient == username) {
-                string partner = (msg.sender == username) ? msg.recipient : msg.sender;
-                string tag = (msg.sender == username) ? "[SENT TO " : "[RCVD FROM ";
+            if (msg.sender == username) {
+                // If this is the first message found, print a header
+                if (!foundSent) {
+                    cout << "  MESSAGES SENT TO:" << endl;
+                    foundSent = true;
+                }
 
-                cout << "  -> " << tag << partner << "]: " << msg.content << endl;
-                found = true;
+                sentCount++;
+                cout << "    (" << sentCount << ") To: " << left << setw(15) << msg.recipient
+                     << " | Content: " << msg.content << endl;
             }
         }
 
-        if (!found) cout << "  -> (No history)" << endl;
+        if (!foundSent) {
+            cout << "  (No messages sent by this user)" << endl;
+        }
+
+        cout << "------------------------------------------------------------" << endl;
     }
+
+    cout << "\n[SYSTEM] Scan complete. Total Users: " << users.size() << endl;
+    cout << "Press Enter to close..." << endl;
+    cin.get();
 
     return 0;
 }
