@@ -117,4 +117,20 @@ void loadMessages(vector<Message>& messages) {
 }
 
 
-void saveMessages(const vector<Message>& messages) { /* ... same code ... */ }
+void saveMessages(const vector<Message>& messages) {
+    ofstream file(MSG_FILE);
+    if (!file.is_open()) {
+        cout << "[Error] Could not open " << MSG_FILE << " for writing.\n";
+        return;
+    }
+
+    for (const auto& m : messages) {
+        file << m.sender << "|"
+             << m.recipient << "|"
+             << m.subject << "|"
+             << m.content << "|"
+             << (m.isAnnouncement ? "1" : "0") << "\n";
+    }
+    file.close();
+    cout << "[System] Messages saved successfully.\n";
+}
