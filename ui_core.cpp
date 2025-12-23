@@ -1,5 +1,8 @@
-//
-// Created by DjMhel on 20/12/2025.
-//
-
 #include "ui_core.h"
+#include <iostream>
+
+using namespace std;
+
+void printMenu() {
+    cout<<"--------";
+}

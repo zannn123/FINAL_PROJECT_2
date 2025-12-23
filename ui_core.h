@@ -1,13 +1,8 @@
-//
-// Created by DjMhel on 20/12/2025.
-//
+#ifndef UI_CORE_H
+#define UI_CORE_H
 
-#ifndef FINAL_PROJECT_2_UI_CORE_H
-#define FINAL_PROJECT_2_UI_CORE_H
+#include "globals.h"
 
+void printMenu();
 
-class ui_core {
-};
-
-
-#endif //FINAL_PROJECT_2_UI_CORE_H
+#endif
