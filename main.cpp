@@ -6,9 +6,9 @@
 using namespace std;
 
 int main() {
-    printMenu();
 
-
+    showLoadingView("HOW COULD GIVE ME SOME SIGN THAT LEAD TO WHAT WE HAVE? ");
+    showLoginView();
 
     cin.ignore();
     cin.get();
