@@ -1,36 +1,32 @@
-//
-// Created by DjMhel on 20/12/2025.
-//
-
 #ifndef FINAL_PROJECT_2_GLOBALS_H
 #define FINAL_PROJECT_2_GLOBALS_H
+
 #include <string>
 #include <vector>
-#include <unordered_map> // <--- THIS IS THE HASHING LIBRARY
+#include <unordered_map>
 
-using namespace std;
+// REMOVED "using namespace std;" to fix errors.
+// We use std::string, std::vector, etc.
 
 struct User {
-    string username;
-    string password;
-    string realName;
-    string description;
-    string securityAnswer;
+    std::string username;
+    std::string password;
+    std::string realName;
+    std::string description;
+    std::string securityAnswer;
     bool isLocked;
-    vector<string> connections; // List of friends
+    std::vector<std::string> connections; // List of friends
 };
 
 struct Message {
-    string sender;
-    string recipient;
-    string subject;
-    string content;
+    std::string sender;
+    std::string recipient;
+    std::string subject;
+    std::string content;
     bool isAnnouncement;
 };
 
-// --- THE HASH MAP DEFINITION ---
-// Instead of a Vector, we define a Map.
-// Key (string) = Username
-// Value (User) = The User Data
-using UserMap = unordered_map<string, User>;
+// Key = Username, Value = User Data
+using UserMap = std::unordered_map<std::string, User>;
+
 #endif //FINAL_PROJECT_2_GLOBALS_H

@@ -9,8 +9,8 @@
 
 using namespace std;
 
-const string USER_FILE = "user.txt";
-const string MSG_FILE = "message.txt";
+const string USER_FILE = "../user.txt";
+const string MSG_FILE = "../message.txt";
 
 // Helper to split commas (for friend lists)
 vector<string> split(string s, char delimiter) {
@@ -60,7 +60,7 @@ void loadUsers(UserMap& users) {
         users[u.username] = u;
     }
     file.close();
-    cout << "[System] Loaded " << users.size() << " users into Hash Map.\n";
+    cout << "\n [System] Loaded " << users.size() << " users into Hash Map.\n";
 }
 
 void saveUsers(const UserMap& users) {
@@ -94,7 +94,11 @@ void saveUsers(const UserMap& users) {
 void loadMessages(vector<Message>& messages) {
     messages.clear();
     ifstream file(MSG_FILE);
-    if (!file.is_open()) return;
+
+    if (!file.is_open()) {
+        cout << "[Warning] Could not open messages file (" << MSG_FILE << ")\n";
+        return;
+    }
 
     string line;
     while (getline(file, line)) {
@@ -114,6 +118,7 @@ void loadMessages(vector<Message>& messages) {
         messages.push_back(m);
     }
     file.close();
+    cout << "[System] Loaded " << messages.size() << " messages.\n";
 }
 
 
@@ -132,5 +137,5 @@ void saveMessages(const vector<Message>& messages) {
              << (m.isAnnouncement ? "1" : "0") << "\n";
     }
     file.close();
-    cout << "[System] Messages saved successfully.\n";
+    cout << "\n [System] Messages saved successfully.\n";
 }

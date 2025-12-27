@@ -11,4 +11,8 @@ add_executable(finalProject2
         file_handler.h
         globals.h
         ui_core.h
+        admin.cpp
+        admin.h
+        user.cpp
+        user.h
 )
