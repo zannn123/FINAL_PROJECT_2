@@ -1,6 +1,7 @@
 #ifndef UI_CORE_H
 #define UI_CORE_H
 #include <string>
+#include "globals.h"
 
 struct LoginCredentials {
     std::string username;
@@ -12,8 +13,9 @@ struct LoginCredentials {
 void initMouse(); // Call this in main!
 LoginCredentials showLoginView();
 void showLoadingView(const std::string& message);
-void showAdminMenu();
+int showAdminMenu();
 void showCreateAccountForm();
 void showForgotForm();
+int showUserView(const User& currentUser);
 
 #endif

@@ -13,7 +13,9 @@ vector<Message> allMessages;
 
 int main() {
     initMouse();
+    Beep(2000, 400);
     showLoadingView("Loading Users");
+    Beep(2000, 400);
     loadUsers(users);
     loadMessages(allMessages);
 
@@ -28,17 +30,42 @@ int main() {
         else if (isAdminLogin(creds.username, creds.password)) {
             while (true) {
                 showAdminMenu();
-                int adminChoice;
-                if (!(cin >> adminChoice)) { // Error check if they type letters
-                    cin.clear(); cin.ignore(1000, '\n');
-                    continue;
+                int choice = showAdminMenu();
+                if (choice == 1) {
+                    // Call View Users Function
+                    // adminViewUsers(users);
                 }
-                if (adminChoice == 5) break;
-                cout << "\n[System] Feature coming soon...\n";
-                Sleep(1000);
+                else if (choice == 2) {
+                    // Call Modify Users
+                }
+                else if (choice == 3) {
+                    // Call Delete Users
+                }
+                else if (choice == 4) {
+                    // Call View Messages
+                }
+                else if (choice == 5) {
+                    break; // Logout
+                }
             }
         }else if (isUserLoginValid(users,creds.username, creds.password)) {
-                cout<<"welcome";
+            User currentUser = users[creds.username];
+            while(true) {
+                // Returns: 1=Feed, 2=Post, 3=Friends, 4=Profile, 5=Logout
+                int choice = showUserView(currentUser);
+
+                if (choice == 1) {
+                    // Call View Feed Function (we will build this next)
+                    // viewFeed(allMessages);
+                }
+                else if (choice == 2) {
+                    // Call Post Function
+                }
+                else if (choice == 5) {
+                    // Logout
+                    break; // Breaks the inner loop, goes back to Login Screen
+                }
+            }
 
         }
         else {
