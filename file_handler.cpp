@@ -9,8 +9,8 @@
 
 using namespace std;
 
-const string USER_FILE = "../user.txt";
-const string MSG_FILE = "../message.txt";
+const string USER_FILE = "C:\\Users\\DjMhel\\Documents\\finalProject2\\user.txt";
+const string MSG_FILE = "C:\\Users\\DjMhel\\Documents\\finalProject2\\message.txt";
 
 // Helper to split commas (for friend lists)
 vector<string> split(string s, char delimiter) {
@@ -24,11 +24,11 @@ vector<string> split(string s, char delimiter) {
 }
 
 void loadUsers(UserMap& users) {
-    users.clear(); // Clear old data
+    users.clear();
     ifstream file(USER_FILE);
 
     if (!file.is_open()) {
-        cout << "[Warning] Could not open users database.\n";
+        cout << "[Warning] Could not open users database at: " << USER_FILE << "\n";
         return;
     }
 
@@ -37,55 +37,98 @@ void loadUsers(UserMap& users) {
         if (line.empty()) continue;
 
         stringstream ss(line);
-        User u;
+        string segment;
+        vector<string> tokens;
 
-        // Parse the line just like before...
-        getline(ss, u.username, '|');
-        getline(ss, u.password, '|');
-        getline(ss, u.realName, '|');
-        getline(ss, u.description, '|');
-        getline(ss, u.securityAnswer, '|');
+        // Split by pipe '|'
+        while(getline(ss, segment, '|')) {
+            tokens.push_back(segment);
+        }
 
-        string lockedStr;
-        getline(ss, lockedStr, '|');
-        u.isLocked = (lockedStr == "1");
+        // We need at least 6 columns (up to Answer) to be valid basics
+        if (tokens.size() >= 6) {
+            User u;
+            u.username       = tokens[0];
+            u.password       = tokens[1];
+            u.realName       = tokens[2];
+            u.description    = tokens[3];
 
-        string connStr;
-        getline(ss, connStr);
-        u.connections = split(connStr, ',');
+            try { u.questionIndex = stoi(tokens[4]); }
+            catch (...) { u.questionIndex = 0; }
 
-        // --- HASHING HAPPENS HERE ---
-        // We insert the user into the map using their username as the Key.
-        // This calculates the hash instantly.
-        users[u.username] = u;
+            u.securityAnswer = tokens[5];
+
+            // --- FIX START: READ IN CORRECT ORDER (MATCHING SAVE) ---
+
+            // 1. READ CONNECTIONS FIRST (Token 6)
+            // (Your save function puts connections right after security answer)
+            if (tokens.size() > 6) {
+                string connStr = tokens[6];
+                if (connStr != " " && !connStr.empty() && connStr != "0") {
+                    stringstream css(connStr);
+                    string friendName;
+                    while(getline(css, friendName, ',')) {
+                        // FILTER: Only add if valid and NOT "0"
+                        if(!friendName.empty() && friendName != "0") {
+                            u.connections.push_back(friendName);
+                        }
+                    }
+                }
+            }
+
+            // 2. READ LOCKED STATUS LAST (Token 7)
+            // (Your save function puts this at the very end)
+            if (tokens.size() > 7) {
+                try {
+                    u.isLocked = (stoi(tokens[7]) == 1);
+                }
+                catch (...) { u.isLocked = false; }
+            } else {
+                u.isLocked = false; // Default if column missing
+            }
+
+            // --- FIX END ---
+
+            users[u.username] = u;
+        }
     }
     file.close();
-    cout << "\n [System] Loaded " << users.size() << " users into Hash Map.\n";
+    cout << "\n [System] Loaded " << users.size() << " users.\n";
 }
 
 void saveUsers(const UserMap& users) {
-    ofstream file(USER_FILE);
+    ofstream file(USER_FILE);// Or use USER_FILE if you have that defined
     if (!file.is_open()) return;
 
-    // Iterating through a Map is slightly different than a Vector
-    // 'entry.first' is the Username (Key)
-    // 'entry.second' is the User Struct (Value)
     for (const auto& entry : users) {
-        const User& u = entry.second; // Get the user object
+        const User& u = entry.second;
 
+        // 1. Write the Fixed Columns (Username -> Security Answer)
         file << u.username << "|"
              << u.password << "|"
              << u.realName << "|"
              << u.description << "|"
-             << u.securityAnswer << "|"
-             << (u.isLocked ? "1" : "0") << "|";
+             << u.questionIndex << "|"     // <--- ADDED THIS (was missing)
+             << u.securityAnswer << "|";
 
-        for (size_t i = 0; i < u.connections.size(); i++) {
-            file << u.connections[i];
-            if (i < u.connections.size() - 1) file << ",";
+        // 2. Write Connections (Column 7)
+        // We write them as a comma-separated list INSIDE the pipe
+        if (u.connections.empty()) {
+            file << " "; // Write a space if no friends (keeps the column valid)
+        } else {
+            for (size_t i = 0; i < u.connections.size(); i++) {
+                file << u.connections[i];
+                if (i < u.connections.size() - 1) {
+                    file << ","; // Comma between friends
+                }
+            }
         }
-        file << "\n";
+
+        // 3. Write Lock Status (Column 8)
+        // We put this last to be safe
+        file << "|" << (u.isLocked ? "1" : "0") << endl;
     }
+
     file.close();
 }
 

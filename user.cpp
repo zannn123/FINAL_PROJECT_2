@@ -11,8 +11,14 @@ bool isUserLoginValid(const UserMap& db, const string& username, const string& p
     if (db.find(username) == db.end()) {
         return false;
     }
-    if (db.at(username).password == password) {
+    const User& user = db.at(username);
+
+    if (user.isLocked) {
+        return false;
+    }
+    if (user.password == password) {
         return true;
     }
     return false;
 }
+

@@ -13,6 +13,7 @@ struct User {
     std::string password;
     std::string realName;
     std::string description;
+    int questionIndex;
     std::string securityAnswer;
     bool isLocked;
     std::vector<std::string> connections; // List of friends

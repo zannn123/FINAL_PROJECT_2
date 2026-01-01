@@ -15,4 +15,8 @@ add_executable(finalProject2
         admin.h
         user.cpp
         user.h
+        ui_admin.cpp
+        ui_admin.h
+        ui_user.cpp
+        ui_user.h
 )

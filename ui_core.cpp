@@ -1,14 +1,13 @@
 #include "ui_core.h"
+#include <algorithm>
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
 #include <vector>
 #include <cstdlib>
 #include <cctype>
-
+#include <iomanip>
 using namespace std;
-
-// --- INTERNAL HELPERS ---
 HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
 HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -17,17 +16,72 @@ void SetColor(int c) { cout << "\033[" << c << "m"; }
 void HideCursor() { cout << "\033[?25l"; }
 void ShowCursor() { cout << "\033[?25h"; }
 
-// --- MOUSE SETUP ---
+string getInputAt(int x, int y, bool isPassword) {
+    string input = "";
+    GoToXY(x, y);
+    SetColor(33);
+
+    while(true) {
+        char ch = _getch();
+        if (ch == 13) break;
+        if (ch == 8) {
+            if (!input.empty()) {
+                input.pop_back();
+                cout << "\b \b";
+            }
+        }
+        else if (isalnum(ch) || ispunct(ch) || ch == ' ') {
+            if (input.length() < 25) {
+                input += ch;
+                if (isPassword) cout << "*"; else cout << ch;
+            }
+        }
+    }
+    return input;
+}
+
+int activeInput(int x, int y, string& data, bool isPwd) {
+    GoToXY(x, y);
+    SetColor(33);
+
+    if (isPwd) {
+        for (size_t i = 0; i < data.length(); i++) cout << "*";
+    } else {
+        cout << data;
+    }
+
+    while (true) {
+        int key = _getch();
+        if (key == 13) return 1;
+        if (key == 224) {
+            key = _getch();
+            if (key == 72) return -1;
+            if (key == 80) return 1;
+        }
+        else if (key == 8) {
+            if (!data.empty()) {
+                data.pop_back();
+                cout << "\b \b";
+            }
+        }
+        else if (isalnum(key) || ispunct(key) || key == ' ') {
+            if (data.length() < 25) {
+                data += (char)key;
+                if (isPwd) cout << "*"; else cout << (char)key;
+            }
+        }
+    }
+}
+
 void initMouse() {
     HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
     DWORD mode;
     GetConsoleMode(hIn, &mode);
-    mode &= ~ENABLE_QUICK_EDIT_MODE; // Prevent freezing
+    mode &= ~ENABLE_QUICK_EDIT_MODE;
     mode |= ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
     SetConsoleMode(hIn, mode);
 }
 
-// --- BUTTON DRAWER ---
 void drawButton(int x, int y, string text) {
     SetColor(44);
     SetColor(37);
@@ -35,7 +89,6 @@ void drawButton(int x, int y, string text) {
     SetColor(0);
 }
 
-// --- BACKGROUND EFFECTS ---
 void DrawStarField() {
     SetColor(90);
     for (int y = 1; y < 30; y++) {
@@ -51,7 +104,6 @@ void DrawStarField() {
     }
 }
 
-// [FIXED] Now removes stars to prevent overcrowding
 void UpdateStars(int safeX, int safeY, int safeW, int safeH) {
     for(int i=0; i<3; i++) {
         int ex = (rand() % 118) + 1;
@@ -103,10 +155,10 @@ string InputWithTwinkle(int x, int y, bool isPassword, int boxX, int boxY, int b
     GoToXY(x, y);
 
     while (true) {
-        UpdateStars(boxX, boxY, boxW, boxH); // Now uses the fixed version
+        UpdateStars(boxX, boxY, boxW, boxH);
 
         GoToXY(x + input.length(), y);
-        SetColor(33); // Yellow Text
+        SetColor(33);
 
         GetNumberOfConsoleInputEvents(hIn, &nRead);
 
@@ -142,8 +194,6 @@ string InputWithTwinkle(int x, int y, bool isPassword, int boxX, int boxY, int b
     }
 }
 
-//VIEWS
-
 LoginCredentials showLoginView() {
     HideCursor();
     system("cls");
@@ -171,7 +221,6 @@ LoginCredentials showLoginView() {
     data.action = "LOGIN";
     return data;
 }
-
 
 void showLoadingView(const string& finalMessage) {
     system("cls");
@@ -216,82 +265,9 @@ void showLoadingView(const string& finalMessage) {
     }
     Beep(1500, 250);
     Beep(2000, 100);
-    Sleep(300); // Brief pause to admire the 100%
+    Sleep(300);
     ShowCursor();
 }
-
-int showAdminMenu() {
-    system("cls");
-    HideCursor();
-    DrawStarField();
-    DrawCard(5, 2, 110, 4);
-    DrawCard(5, 8, 30, 20);
-    DrawCard(37, 8, 78, 20);
-    SetColor(36);
-    GoToXY(10, 4); cout << "SYSTEM MODE: ";
-    SetColor(31);
-    cout << "ADMINISTRATOR";
-    GoToXY(45, 4); SetColor(36); cout << "ACCESS LEVEL: ";
-    SetColor(33); // Yellow
-    cout << "Root / Full Control";
-    GoToXY(80, 4); SetColor(36); cout << "SESSION: ";
-    SetColor(32); // Green
-    cout << "Secure";
-    const int MENU_SIZE = 5;
-    string menuItems[MENU_SIZE] = {
-        "View All Users",
-        "Modify User Accounts",
-        "Delete Users",
-        "View System Messages",
-        "Logout"
-    };
-
-    int selection = 0;
-    while(true) {
-        for(int i=0; i<MENU_SIZE; i++) {
-            int yPos = 12 + (i * 3); // Spacing
-            GoToXY(8, yPos);
-
-            if(i == selection) {
-                SetColor(31); // Red Highlight for Admin
-                cout << ">> " << menuItems[i];
-            } else {
-                SetColor(90); // Gray
-                cout << "   " << menuItems[i];
-            }
-        }
-        GoToXY(45, 12); SetColor(37); cout << "COMMAND DESCRIPTION:";
-        GoToXY(45, 13); SetColor(90); cout << "--------------------";
-        GoToXY(45, 15); SetColor(37);
-        if(selection == 0) cout << "Display a list of all registered users in the database.   ";
-        if(selection == 1) cout << "Edit passwords, unlock accounts, or update profiles.      ";
-        if(selection == 2) cout << "PERMANENTLY remove a user from the system. (No Undo)      ";
-        if(selection == 3) cout << "Read all messages sent between users on the network.      ";
-        if(selection == 4) cout << "Exit Administrator Mode and return to Login Screen.       ";
-        GoToXY(45, 24); SetColor(31);
-        cout << "[!] WARNING: You have full access. Proceed with caution.";
-        int key = _getch();
-
-        if (key == 224) { // Arrow Key
-            key = _getch();
-            if (key == 72) { // UP
-                selection--;
-                if (selection < 0) selection = MENU_SIZE - 1;
-                Beep(600, 20);
-            }
-            if (key == 80) { // DOWN
-                selection++;
-                if (selection >= MENU_SIZE) selection = 0;
-                Beep(600, 20);
-            }
-        }
-        else if (key == 13) { // ENTER
-            Beep(1000, 50);
-            return selection + 1; // Returns 1, 2, 3, 4, or 5
-        }
-    }
-}
-
 
 void showForgotForm() {
     system("cls");
@@ -307,24 +283,151 @@ void showForgotForm() {
     cin >> dummy;
 }
 
-void showCreateAccountForm() {
+bool showCreateAccountForm(UserMap& users) {
     system("cls");
     DrawStarField();
-    int startX = 30, startY = 5, w = 50, h = 18;
-    DrawCard(startX, startY, w, h);
+    int startX = 30, startY = 5;
+    DrawCard(startX, startY, 55, 20);
+
     SetColor(37);
     GoToXY(startX + 15, startY + 2); cout << "CREATE NEW ACCOUNT";
     GoToXY(startX + 15, startY + 3); cout << "------------------";
+
+    string questions[] = {
+        "What is your favorite animal?",
+        "What is your favorite interest?",
+        "What is your favorite object?",
+        "What city were you born in?"
+    };
+    int qIndex = rand() % 4;
+    string randomQ = questions[qIndex];
+
     GoToXY(startX + 4, startY + 5);  cout << "Name:       [                         ]";
     GoToXY(startX + 4, startY + 7);  cout << "Username:   [                         ]";
     GoToXY(startX + 4, startY + 9);  cout << "Password:   [                         ]";
     GoToXY(startX + 4, startY + 11); cout << "Re-Enter:   [                         ]";
-    GoToXY(startX + 4, startY + 13); cout << "Security Q: [                         ]";
-    SetColor(90);
-    GoToXY(startX + 4, startY + 16); cout << "(Press ENTER to submit)";
-    GoToXY(startX + 17, startY + 5);
-    string dummy;
-    cin >> dummy;
+    GoToXY(startX + 4, startY + 13); cout << "Security Q: " << randomQ;
+    GoToXY(startX + 4, startY + 14); cout << "Answer:     [                         ]";
+
+    drawButton(startX + 18, startY + 17, " SUBMIT ACCOUNT ");
+
+    ShowCursor();
+    User newUser;
+    newUser.questionIndex = qIndex;
+
+    string iName = "", iUser = "", iPass = "", iRePass = "", iAns = "";
+
+    int step = 0;
+
+    while (true) {
+        GoToXY(startX + 35, startY + 16); cout << "                    ";
+
+        int move = 0;
+
+        switch(step) {
+            case 0:
+                move = activeInput(startX + 17, startY + 5, iName);
+                if (move == 1) {
+                    if (iName.empty()) {
+                        GoToXY(startX + 45, startY + 5); SetColor(31); cout << "Required!";
+                    } else {
+                        GoToXY(startX + 45, startY + 5); cout << "         ";
+                        step++;
+                    }
+                }
+                break;
+
+            case 1:
+                move = activeInput(startX + 17, startY + 7, iUser);
+                if (move == 1) {
+                    if (iUser.empty()) {
+                        GoToXY(startX + 45, startY + 7); SetColor(31); cout << "Required!";
+                    }
+                    else if (users.count(iUser)) {
+                        GoToXY(startX + 17, startY + 8); SetColor(31); cout << "Taken! Try another.";
+                    }
+                    else {
+                        GoToXY(startX + 45, startY + 7); cout << "         ";
+                        GoToXY(startX + 17, startY + 8); cout << "                   ";
+                        step++;
+                    }
+                } else {
+                    step--;
+                }
+                break;
+
+            case 2:
+                move = activeInput(startX + 17, startY + 9, iPass, true);
+                if (move == 1) {
+                    if (iPass.empty()) {
+                        GoToXY(startX + 45, startY + 9); SetColor(31); cout << "Required!";
+                    } else {
+                        GoToXY(startX + 45, startY + 9); cout << "         ";
+                        step++;
+                    }
+                } else step--;
+                break;
+
+            case 3:
+                move = activeInput(startX + 17, startY + 11, iRePass, true);
+                if (move == 1) {
+                    if (iPass != iRePass) {
+                         GoToXY(startX + 17, startY + 12); SetColor(31); cout << "Passwords mismatch!";
+                    } else {
+                         GoToXY(startX + 17, startY + 12); cout << "                   ";
+                         step++;
+                    }
+                } else step--;
+                break;
+
+            case 4:
+                move = activeInput(startX + 17, startY + 14, iAns);
+                if (move == 1) {
+                    if (iAns.empty()) {
+                        GoToXY(startX + 45, startY + 14); SetColor(31); cout << "Required!";
+                    } else {
+                        GoToXY(startX + 45, startY + 14); cout << "         ";
+                        step++;
+                    }
+                } else step--;
+                break;
+
+            case 5:
+                HideCursor();
+                SetColor(32);
+                drawButton(startX + 18, startY + 17, "> SUBMIT ACCOUNT <");
+
+                int key = _getch();
+                if (key == 13) {
+                    newUser.realName = iName;
+                    newUser.username = iUser;
+                    newUser.password = iPass;
+                    newUser.securityAnswer = iAns;
+                    newUser.description = "DEFAULT_USER";
+                    newUser.isLocked = false;
+                    newUser.connections.clear();
+
+                    users[newUser.username] = newUser;
+
+                    GoToXY(startX + 4, startY + 18); SetColor(32);
+                    cout << "Account Created Successfully!";
+                    Beep(1000, 100);
+                    Sleep(1000);
+                    return true;
+                }
+                else if (key == 224) {
+                    key = _getch();
+                    if (key == 72) {
+                        drawButton(startX + 18, startY + 17, " SUBMIT ACCOUNT ");
+                        ShowCursor();
+                        step--;
+                    }
+                }
+                break;
+        }
+
+        if (step < 0) step = 0;
+    }
 }
 
 int showUserView(const User& currentUser) {
@@ -332,45 +435,40 @@ int showUserView(const User& currentUser) {
     HideCursor();
     DrawStarField();
 
-    DrawCard(5, 2, 110, 4);  // Top Bar (Header)
-    DrawCard(5, 8, 35, 20);  // Left Sidebar (The Menu)
-    DrawCard(42, 8, 73, 20); // Right Panel (Context/Description)
+    DrawCard(5, 2, 110, 4);
+    DrawCard(5, 8, 35, 20);
+    DrawCard(42, 8, 73, 20);
 
-    // 2. Render Top Bar Data
     SetColor(36); GoToXY(10, 4); cout << "USER DASHBOARD";
     SetColor(90); cout << " | ";
-    SetColor(37); cout << "Welcome, " << currentUser.realName; // Show Real Name (Friendlier)
+    SetColor(37); cout << "Welcome, " << currentUser.realName;
 
     GoToXY(90, 4); SetColor(32); cout << "[ ONLINE ]";
 
-    // 3. The 5 Main Menu Items
     const int MENU_SIZE = 5;
     string menuItems[MENU_SIZE] = {
-        "Messaging Hub",       // Opens Sub-menu for Inbox, Sent, Compose
-        "My Connections",      // Manage Friends
-        "Add Friend",    // Find new people (Req 2.8)
-        "Profile Settings",    // Edit Info & Password
-        "Logout"               // Exit
+        "Messaging Hub",
+        "My Connections",
+        "Add Friend",
+        "Profile Settings",
+        "Logout"
     };
 
     int selection = 0;
     while(true) {
-        // --- DRAW MENU (Left Sidebar) ---
         for(int i=0; i<MENU_SIZE; i++) {
-            int yPos = 12 + (i * 3); // Spacing
+            int yPos = 12 + (i * 3);
             GoToXY(8, yPos);
 
             if(i == selection) {
-                SetColor(33); // Yellow Highlight
+                SetColor(33);
                 cout << ">> " << menuItems[i] << " <<";
             } else {
-                SetColor(90); // Gray
+                SetColor(90);
                 cout << "   " << menuItems[i] << "   ";
             }
         }
 
-        // --- DRAW DESCRIPTION (Right Panel) ---
-        // This text explains to the professor that the requirements are inside!
         GoToXY(45, 12); SetColor(37); cout << "PREVIEW:";
         GoToXY(45, 13); SetColor(90); cout << "---------------";
         GoToXY(45, 15); SetColor(37);
@@ -400,24 +498,139 @@ int showUserView(const User& currentUser) {
              cout << "Securely sign out of the application.";
         }
 
-        // --- INPUT HANDLING ---
         int key = _getch();
-        if (key == 224) { // Arrow Keys
+        if (key == 224) {
             key = _getch();
-            if (key == 72) { // UP
+            if (key == 72) {
                 selection--;
                 if (selection < 0) selection = MENU_SIZE - 1;
-                Beep(600, 20); // Menu Move Sound
+                Beep(600, 20);
             }
-            if (key == 80) { // DOWN
+            if (key == 80) {
                 selection++;
                 if (selection >= MENU_SIZE) selection = 0;
                 Beep(600, 20);
             }
         }
-        else if (key == 13) { // ENTER
-            Beep(1000, 50); // Select Sound
-            return selection + 1; // Returns 1, 2, 3, 4, or 5
+        else if (key == 13) {
+            Beep(1000, 50);
+            return selection + 1;
         }
     }
+}
+
+void showUser(const User& user, const string& decryptedPassword) {
+    int x = 40;
+    int y = 5;
+    DrawCard(x, y, 50, 14);
+    GoToXY(x + 18, y + 2);
+    SetColor(36); cout << "USER PROFILE";
+    GoToXY(x + 2, y + 3);
+    SetColor(90); for(int i=0; i<46; i++) cout << "-";
+    SetColor(37);
+    GoToXY(x + 4, y + 5); cout << "Username    :";
+    SetColor(33); cout << " " << user.username;
+    SetColor(37);
+    GoToXY(x + 4, y + 7); cout << "Password    :";
+    SetColor(90); cout << " " << decryptedPassword;
+    SetColor(37);
+    GoToXY(x + 4, y + 9); cout << "Role/Desc   :";
+    SetColor(32); cout << " " << user.description;
+    SetColor(37);
+    GoToXY(x + 4, y + 11); cout << "Connections :";
+    SetColor(35); if (user.connections.empty()) cout << "(None)";
+    else { for (size_t i = 0; i < user.connections.size(); i++) cout << (i == 0 ? "" : ", ") << user.connections[i]; }
+    SetColor(37);
+    GoToXY(x + 4, y + 13); cout << "Status      :";
+    if(user.isLocked) {
+        SetColor(31); cout << " [LOCKED]";
+    } else {
+        SetColor(32); cout << " Active";
+    }
+    cout << "\n\n";
+}
+
+// ui_core.cpp
+
+string showChangePasswordForm(const string& targetUsername) {
+    system("cls");
+    DrawStarField();
+    int x = 35;
+    int y = 8;
+    int w = 50;
+    int h = 16;
+    DrawCard(x, y, w, h); GoToXY(x + 15, y + 2);
+    SetColor(36); cout << "CHANGE PASSWORD"; GoToXY(x + 15, y + 3);
+    SetColor(90); cout << "---------------"; GoToXY(x + 4, y + 5);
+    SetColor(37); cout << "Target User: ";
+    SetColor(33); cout << targetUsername; GoToXY(x + 4, y + 8);
+    SetColor(37); cout << "New Password : [                         ]"; GoToXY(x + 4, y + 10);
+    SetColor(37); cout << "Confirm Pass : [                         ]"; GoToXY(x + 4, y + 12);
+    SetColor(90); cout << "[ ] Show Password (Press TAB)";
+    drawButton(x + 15, y + 14, " SAVE PASSWORD ");
+    string newPass = "";
+    string confirmPass = "";
+    bool showPwd = false;
+    auto getInputWithToggle = [&](int inputX, int inputY, string &data) -> int {
+        GoToXY(inputX, inputY);
+        SetColor(33);
+
+        if(showPwd) cout << data;
+        else for(char c : data) cout << "*";
+
+        while(true) {
+            int key = _getch();
+
+            if (key == 13) return 1;
+            if (key == 27) return -1;
+
+            if (key == 9) {
+                showPwd = !showPwd;
+
+                GoToXY(x + 5, y + 12);
+                SetColor(showPwd ? 32 : 90);
+                cout << (showPwd ? "x" : " ");
+
+                GoToXY(inputX, inputY);
+                cout << "                         ";
+                GoToXY(inputX, inputY);
+                SetColor(33);
+                if(showPwd) cout << data;
+                else for(char c : data) cout << "*";
+            }
+            else if (key == 8) {
+                if (!data.empty()) {
+                    data.pop_back();
+                    cout << "\b \b";
+                }
+            }
+            else if (isalnum(key) || ispunct(key) || key == ' ') {
+                if (data.length() < 25) {
+                    data += (char)key;
+                    if (showPwd) cout << (char)key;
+                    else cout << "*";
+                }
+            }
+        }
+    };
+
+    if (getInputWithToggle(x + 20, y + 8, newPass) == -1) return "";
+
+    getInputWithToggle(x + 20, y + 10, confirmPass);
+
+    GoToXY(x + 4, y + 13);
+    if (newPass.empty()) {
+        SetColor(31); cout << "Error: Password cannot be empty!";
+        Beep(500, 300);
+        Sleep(1500);
+        return "";
+    }
+    else if (newPass != confirmPass) {
+        SetColor(31); cout << "Error: Passwords do not match!";
+        Beep(500, 300);
+        Sleep(1500);
+        return "";
+    }
+    SetColor(32); cout << "Success! Updating database...   "; drawButton(x + 15, y + 14, "> SAVED <"); Beep(1000, 100); Sleep(1000);
+    return newPass;
 }
