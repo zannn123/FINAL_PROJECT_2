@@ -17,6 +17,7 @@ struct User {
     std::string securityAnswer;
     bool isLocked;
     std::vector<std::string> connections; // List of friends
+    bool resetRequested;
 };
 
 struct Message {

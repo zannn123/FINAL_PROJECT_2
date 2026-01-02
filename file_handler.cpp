@@ -40,12 +40,12 @@ void loadUsers(UserMap& users) {
         string segment;
         vector<string> tokens;
 
-        // Split by pipe '|'
+        // Split line by '|'
         while(getline(ss, segment, '|')) {
             tokens.push_back(segment);
         }
 
-        // We need at least 6 columns (up to Answer) to be valid basics
+        // We need at least 6 columns to be a valid user
         if (tokens.size() >= 6) {
             User u;
             u.username       = tokens[0];
@@ -58,17 +58,13 @@ void loadUsers(UserMap& users) {
 
             u.securityAnswer = tokens[5];
 
-            // --- FIX START: READ IN CORRECT ORDER (MATCHING SAVE) ---
-
-            // 1. READ CONNECTIONS FIRST (Token 6)
-            // (Your save function puts connections right after security answer)
+            // 1. READ CONNECTIONS (Column 6)
             if (tokens.size() > 6) {
                 string connStr = tokens[6];
                 if (connStr != " " && !connStr.empty() && connStr != "0") {
                     stringstream css(connStr);
                     string friendName;
                     while(getline(css, friendName, ',')) {
-                        // FILTER: Only add if valid and NOT "0"
                         if(!friendName.empty() && friendName != "0") {
                             u.connections.push_back(friendName);
                         }
@@ -76,18 +72,26 @@ void loadUsers(UserMap& users) {
                 }
             }
 
-            // 2. READ LOCKED STATUS LAST (Token 7)
-            // (Your save function puts this at the very end)
+            // 2. READ LOCKED STATUS (Column 7)
             if (tokens.size() > 7) {
                 try {
                     u.isLocked = (stoi(tokens[7]) == 1);
                 }
                 catch (...) { u.isLocked = false; }
             } else {
-                u.isLocked = false; // Default if column missing
+                u.isLocked = false;
             }
 
-            // --- FIX END ---
+            // 3. READ RESET REQUEST STATUS (Column 8)
+            // This is the critical part you were missing!
+            if (tokens.size() > 8) {
+                try {
+                    u.resetRequested = (stoi(tokens[8]) == 1);
+                }
+                catch (...) { u.resetRequested = false; }
+            } else {
+                u.resetRequested = false; // Default for old files
+            }
 
             users[u.username] = u;
         }
@@ -97,36 +101,39 @@ void loadUsers(UserMap& users) {
 }
 
 void saveUsers(const UserMap& users) {
-    ofstream file(USER_FILE);// Or use USER_FILE if you have that defined
+    ofstream file(USER_FILE);
     if (!file.is_open()) return;
 
     for (const auto& entry : users) {
         const User& u = entry.second;
 
-        // 1. Write the Fixed Columns (Username -> Security Answer)
+        // 1. Write the Standard Columns (Username -> Security Answer)
         file << u.username << "|"
              << u.password << "|"
              << u.realName << "|"
              << u.description << "|"
-             << u.questionIndex << "|"     // <--- ADDED THIS (was missing)
+             << u.questionIndex << "|"
              << u.securityAnswer << "|";
 
-        // 2. Write Connections (Column 7)
-        // We write them as a comma-separated list INSIDE the pipe
+        // 2. Write Connections (Column 6 in 0-index)
         if (u.connections.empty()) {
-            file << " "; // Write a space if no friends (keeps the column valid)
+            file << " "; // Placeholder space
         } else {
             for (size_t i = 0; i < u.connections.size(); i++) {
                 file << u.connections[i];
                 if (i < u.connections.size() - 1) {
-                    file << ","; // Comma between friends
+                    file << ",";
                 }
             }
         }
 
-        // 3. Write Lock Status (Column 8)
-        // We put this last to be safe
-        file << "|" << (u.isLocked ? "1" : "0") << endl;
+        // 3. Write Lock Status (Column 7)
+        file << "|" << (u.isLocked ? "1" : "0");
+
+        // 4. NEW: Write Reset Request Status (Column 8)
+        file << "|" << (u.resetRequested ? "1" : "0");
+
+        file << endl;
     }
 
     file.close();

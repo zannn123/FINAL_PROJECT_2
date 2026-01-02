@@ -17,6 +17,10 @@ add_executable(finalProject2
         user.h
         ui_admin.cpp
         ui_admin.h
-        ui_user.cpp
-        ui_user.h
+        ui_user_global.cpp
+        ui_user_global.h
+        ui_user_message.cpp
+        ui_user_message.h
+        ui_user_connections.cpp
+        ui_user_connections.h
 )

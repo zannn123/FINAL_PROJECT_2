@@ -98,18 +98,23 @@ int showUserSubMenu(const UserMap& users, string &targetUser) {
     HideCursor();
     DrawStarField();
 
-    // --- SETUP DATA FOR SCROLLING ---
-    vector<string> userKeys;
-    for (const auto& pair : users) {
-        userKeys.push_back(pair.first);
-    }
-
-    int menuX = 5;
+    // --- LAYOUT COORDINATES ---
+    // 1. LEFT: Action Menu
+    int menuX = 4;
     int menuY = 6;
-    int listX = 50;
-    int listY = 6;
+    int menuW = 30; // Slightly narrower to save space
 
-    // Menu Options
+    // 2. CENTER: User List
+    int listX = 36;
+    int listY = 6;
+    int listW = 50;
+
+    // 3. RIGHT: Instruction Box (The new vertical rectangle)
+    int helpX = 88;
+    int helpY = 6;
+    int helpW = 25;
+
+    // Options
     const int MENU_SIZE = 5;
     string menuItems[MENU_SIZE] = {
         "Explore Users",    // 0
@@ -122,100 +127,132 @@ int showUserSubMenu(const UserMap& users, string &targetUser) {
     int menuSelection = 0;
     int listSelection = 0;
     int scrollOffset = 0;
-    bool focusOnList = false; // FALSE = Left Menu, TRUE = Right List
+
+    // State Variables
+    bool focusOnList = false; // FALSE = Menu, TRUE = List
+    bool showResetOnly = false; // Filter Toggle
+    vector<string> displayList;
 
     while (true) {
-        // --- DRAW LEFT CARD (MENU) ---
+        // --- 1. BUILD LIST DYNAMICALLY ---
+        displayList.clear();
+        for (const auto& pair : users) {
+            bool keep = true;
+            if (showResetOnly && !pair.second.resetRequested) keep = false;
+
+            if (keep) displayList.push_back(pair.first);
+        }
+
+        // --- 2. DRAW LEFT CARD (MENU) ---
         int menuColor = focusOnList ? 90 : 36;
-        DrawCard(menuX, menuY, 40, 18);
-        GoToXY(menuX + 10, menuY + 2);
-        SetColor(menuColor); cout << "USER ACTIONS";
-        GoToXY(menuX + 2, menuY + 4);
-        SetColor(90); for (int i = 0; i < 36; i++) cout << "-";
+        DrawCard(menuX, menuY, menuW, 18);
+
+        GoToXY(menuX + 8, menuY + 2); SetColor(menuColor); cout << "ACTIONS";
+        GoToXY(menuX + 2, menuY + 4); SetColor(90); for(int i=0; i<menuW-4; i++) cout << "-";
 
         for (int i = 0; i < MENU_SIZE; i++) {
             int yPos = menuY + 6 + (i * 2);
             GoToXY(menuX + 4, yPos);
 
             if (!focusOnList && i == menuSelection) {
-                SetColor(31); // Active Selection
-                cout << ">> " << menuItems[i] << " <<";
-            }
-            else {
-                SetColor(focusOnList ? 90 : 37); // Dim if focus is on right
-                cout << "   " << menuItems[i] << "   ";
+                SetColor(31); cout << ">> " << menuItems[i];
+            } else {
+                SetColor(focusOnList ? 90 : 37); cout << "   " << menuItems[i];
             }
         }
 
-        // --- DRAW RIGHT CARD (LIST) ---
+        // --- 3. DRAW CENTER CARD (LIST) ---
         int listColor = focusOnList ? 36 : 90;
-        DrawCard(listX, listY, 60, 18);
-        GoToXY(listX + 20, listY + 2);
-        SetColor(listColor); cout << "SELECT TARGET USER";
-        GoToXY(listX + 2, listY + 4);
-        SetColor(90); for (int i = 0; i < 56; i++) cout << "-";
+        DrawCard(listX, listY, listW, 18);
 
-        // Draw Visible Users (Limit 10)
+        GoToXY(listX + 15, listY + 2); SetColor(listColor);
+        cout << (showResetOnly ? "PENDING REQUESTS" : "USER DATABASE");
+
+        GoToXY(listX + 2, listY + 4); SetColor(90); for(int i=0; i<listW-4; i++) cout << "-";
+
+        // Draw List Items
         int maxVisible = 10;
+
+        if (displayList.empty()) {
+            GoToXY(listX + 4, listY + 6); SetColor(90); cout << "(No users found)";
+        }
+
         for (int i = 0; i < maxVisible; i++) {
             int dataIndex = scrollOffset + i;
-            if (dataIndex >= userKeys.size()) break;
+            if (dataIndex >= displayList.size()) break;
 
-            string currentName = userKeys[dataIndex];
+            string currentName = displayList[dataIndex];
+            if (users.find(currentName) == users.end()) continue;
             const User& u = users.at(currentName);
 
             GoToXY(listX + 4, listY + 6 + i);
 
-            // Logic for highlighting the selected row on the right
             if (focusOnList && dataIndex == listSelection) {
-                SetColor(224); // Black text on white background (Inverted)
+                SetColor(224); // Highlight
                 cout << " > " << currentName;
-                for(int s=0; s < 40 - currentName.length(); s++) cout << " ";
-            }
-            else {
-                // Normal Color Logic
-                if (u.isLocked) SetColor(90);
-                else if (u.description == "ADMIN") SetColor(31);
-                else SetColor(32);
-
-                cout << "  " << currentName;
-                if(u.isLocked) cout << " [LOCKED]";
-                SetColor(0); cout << "                                ";
+                for(int s=0; s < 30 - currentName.length(); s++) cout << " ";
+            } else {
+                if (u.resetRequested) {
+                    SetColor(33); cout << " ! " << currentName; // ORANGE
+                } else if (u.isLocked) {
+                    SetColor(31); cout << " X " << currentName; // RED
+                } else if (u.description == "ADMIN") {
+                    SetColor(35); cout << " * " << currentName; // PURPLE
+                } else {
+                    SetColor(32); cout << "   " << currentName; // GREEN
+                }
+                SetColor(0); cout << "                    ";
             }
         }
 
-        // Scroll Indicators
-        GoToXY(listX + 50, listY + 6);
+        // Scroll Arrows
+        GoToXY(listX + listW - 3, listY + 6);
         if(scrollOffset > 0) { SetColor(36); cout << "^"; } else cout << " ";
 
-        GoToXY(listX + 50, listY + 15);
-        if(scrollOffset + maxVisible < userKeys.size()) { SetColor(36); cout << "v"; } else cout << " ";
+        GoToXY(listX + listW - 3, listY + 15);
+        if(scrollOffset + maxVisible < displayList.size()) { SetColor(36); cout << "v"; } else cout << " ";
 
 
-        // --- INFO BAR ---
-        GoToXY(menuX + 2, menuY + 16); SetColor(90);
-        cout << "                                    ";
-        GoToXY(menuX + 2, menuY + 16);
-        if(!focusOnList) {
-            if(menuSelection == 0) cout << "INFO: View list (No Action).";
-            if(menuSelection == 1) cout << "INFO: Select user to LOCK.";
-            if(menuSelection == 2) cout << "INFO: Select user to DELETE.";
-            if(menuSelection == 3) cout << "INFO: Select user to RESET.";
-            if(menuSelection == 4) cout << "INFO: Return to menu.";
-        } else {
-            SetColor(33);
-            cout << "Press ENTER to confirm target.";
-        }
+        // --- 4. DRAW RIGHT CARD (VERTICAL INSTRUCTIONS) ---
+        DrawCard(helpX, helpY, helpW, 18);
+
+        GoToXY(helpX + 8, helpY + 2); SetColor(37); cout << "GUIDE";
+        GoToXY(helpX + 2, helpY + 3); SetColor(90); for(int i=0; i<helpW-4; i++) cout << "-";
+
+        // Controls Section
+        GoToXY(helpX + 3, helpY + 5); SetColor(36); cout << "CONTROLS:";
+
+        GoToXY(helpX + 3, helpY + 7);
+        if(showResetOnly) { SetColor(33); cout << "[TAB] All Users"; }
+        else              { SetColor(90); cout << "[TAB] Filter Req"; }
+
+        GoToXY(helpX + 3, helpY + 8); SetColor(90); cout << "[ENT] Select";
+        GoToXY(helpX + 3, helpY + 9); SetColor(90); cout << "[ESC] Back";
+
+        GoToXY(helpX + 2, helpY + 11); SetColor(90); for(int i=0; i<helpW-4; i++) cout << "-";
+
+        // Legend Section
+        GoToXY(helpX + 3, helpY + 13); SetColor(36); cout << "LEGEND:";
+
+        GoToXY(helpX + 3, helpY + 14); SetColor(33); cout << "[!]"; SetColor(90); cout << " Reset Req";
+        GoToXY(helpX + 3, helpY + 15); SetColor(31); cout << "[X]"; SetColor(90); cout << " Locked";
+        GoToXY(helpX + 3, helpY + 16); SetColor(35); cout << "[*]"; SetColor(90); cout << " Admin";
+
 
         // --- INPUT HANDLING ---
         int key = _getch();
-        if (key == 224) {
+
+        if (key == 9) { // TAB
+            showResetOnly = !showResetOnly;
+            listSelection = 0; scrollOffset = 0;
+            Beep(400, 50);
+        }
+        else if (key == 224) {
             key = _getch();
             if (!focusOnList) {
                 if (key == 72) { menuSelection--; if (menuSelection < 0) menuSelection = MENU_SIZE - 1; }
                 if (key == 80) { menuSelection++; if (menuSelection >= MENU_SIZE) menuSelection = 0; }
-            }
-            else {
+            } else {
                 if (key == 72) { // UP
                     if (listSelection > 0) {
                         listSelection--;
@@ -223,24 +260,24 @@ int showUserSubMenu(const UserMap& users, string &targetUser) {
                     }
                 }
                 if (key == 80) { // DOWN
-                    if (listSelection < userKeys.size() - 1) {
+                    if (listSelection < displayList.size() - 1) {
                         listSelection++;
                         if (listSelection >= scrollOffset + maxVisible) scrollOffset++;
                     }
                 }
             }
         }
-        else if (key == 13) { // ENTER KEY
+        else if (key == 13) { // ENTER
             if (!focusOnList) {
                 if (menuSelection == 4) return 5;
+                if (displayList.empty()) { Beep(200, 200); continue; }
                 focusOnList = true;
-            }
-            else {
-                targetUser = userKeys[listSelection];
+            } else {
+                targetUser = displayList[listSelection];
                 return menuSelection + 1;
             }
         }
-        else if (key == 27) { // ESC KEY
+        else if (key == 27) { // ESC
             if (focusOnList) focusOnList = false;
             else return 5;
         }
@@ -248,66 +285,118 @@ int showUserSubMenu(const UserMap& users, string &targetUser) {
 }
 
 void showModifyUserMenu(Admin &admin, UserMap &users, string target) {
-    if (users.find(target) == users.end()) return;
-    User &u = users[target];
     while(true) {
+        // 1. RE-ACQUIRE REFERENCE
+        // Critical: If we rename the user, the old "target" string becomes invalid.
+        // We must check if the user still exists.
+        if (users.find(target) == users.end()) return;
+        User &u = users[target];
+
         system("cls");
         SetColor(36); cout << "\n   EDITING USER: " << target << "\n";
         SetColor(90); cout << "   --------------------------------\n";
-        SetColor(37); cout << "   [1] Edit Description  ";
+
+        // --- NEW OPTIONS ---
+        SetColor(37); cout << "   [1] Edit Real Name    ";
+        SetColor(33); cout << "(" << u.realName << ")\n";
+
+        SetColor(37); cout << "   [2] Edit Username     ";
+        SetColor(33); cout << "(" << u.username << ")\n";
+
+        // --- OLD OPTIONS (Shifted Down) ---
+        SetColor(37); cout << "   [3] Edit Description  ";
         SetColor(33); cout << "(" << u.description << ")\n";
-        SetColor(37); cout << "   [2] Add Friend        ";
+
+        SetColor(37); cout << "   [4] Add Friend        ";
         SetColor(35); cout << "(Cnt: " << u.connections.size() << ")\n";
-        SetColor(37); cout << "   [3] Remove Friend     \n";
-        SetColor(37); cout << "   [4] Toggle Lock       ";
+
+        SetColor(37); cout << "   [5] Remove Friend     \n";
+
+        SetColor(37); cout << "   [6] Toggle Lock       ";
         SetColor(u.isLocked ? 31 : 32); cout << "(" << (u.isLocked ? "LOCKED" : "ACTIVE") << ")\n";
-        SetColor(37); cout << "   [5] Finish Editing\n";
+
+        SetColor(37); cout << "   [7] Finish Editing\n";
+
         cout << "\n   Select Option: ";
         int choice;
         if (!(cin >> choice)) {
             cin.clear(); cin.ignore(1000, '\n'); choice = 0;
         }
+
+        // --- HANDLERS ---
+
+        // 1. EDIT REAL NAME
         if (choice == 1) {
+            cout << "   Enter New Real Name: ";
+            string newName;
+            cin.ignore(); // Clear buffer
+            getline(cin, newName);
+
+            // Clean Call to Admin Logic
+            admin.updateRealName(u, newName);
+            saveUsers(users);
+            cout << "   [SAVED] Real Name updated.\n";
+        }
+        // 2. EDIT USERNAME
+        else if (choice == 2) {
+            cout << "   Enter New Username: ";
+            string newUser;
+            cin >> newUser;
+
+            // Clean Call (Logic is hidden in admin.cpp)
+            if (admin.updateUsername(users, target, newUser)) {
+                saveUsers(users);
+                SetColor(32); cout << "   [SUCCESS] Username changed to " << target << ".\n";
+            } else {
+                SetColor(31); cout << "   [ERROR] Username taken or invalid.\n";
+            }
+        }
+        // 3. EDIT DESCRIPTION
+        else if (choice == 3) {
             cout << "   Enter new description: ";
             string desc;
             cin.ignore();
             getline(cin, desc);
             admin.updateDescription(u, desc);
-            saveUsers(users); // <--- SAVED!
+            saveUsers(users);
             cout << "   [SAVED] Description updated.\n";
         }
-        else if (choice == 2) {
+        // 4. ADD FRIEND
+        else if (choice == 4) {
             cout << "   Enter username to add: ";
             string name;
             cin >> name;
             if (admin.addConnection(u, name, users)) {
-                saveUsers(users); // <--- SAVED!
+                saveUsers(users);
                 cout << "   [SAVED] Added " << name << ".\n";
             } else {
                 cout << "   [ERROR] Invalid user.\n";
             }
         }
-        else if (choice == 3) {
+        // 5. REMOVE FRIEND
+        else if (choice == 5) {
             cout << "   Enter username to remove: ";
             string name;
             cin >> name;
             if (admin.removeConnection(u, name)) {
-                saveUsers(users); // <--- SAVED!
+                saveUsers(users);
                 cout << "   [SUCCESS] Removed " << name << ".\n";
             } else {
                 cout << "   [ERROR] Friend not found.\n";
             }
         }
-        else if (choice == 4) {
+        // 6. TOGGLE LOCK
+        else if (choice == 6) {
             admin.toggleLock(u);
-            saveUsers(users); // <--- SAVED!
+            saveUsers(users);
             cout << "   [SUCCESS] Status toggled.\n";
         }
-        else if (choice == 5) {
+        // 7. EXIT
+        else if (choice == 7) {
             break;
         }
 
-        if(choice != 5) {
+        if(choice != 7) {
             SetColor(90); cout << "   Press any key to continue...";
             _getch();
         }

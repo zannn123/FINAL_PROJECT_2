@@ -1,0 +1,13 @@
+//
+// Created by DjMhel on 03/01/2026.
+//
+
+#ifndef FINALPROJECT2_UI_USER_CONNECTIONS_H
+#define FINALPROJECT2_UI_USER_CONNECTIONS_H
+
+
+class ui_user_connections {
+};
+
+
+#endif //FINALPROJECT2_UI_USER_CONNECTIONS_H

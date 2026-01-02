@@ -27,9 +27,10 @@ std::string InputWithTwinkle(int x, int y, bool isPassword, int boxX, int boxY, 
 LoginCredentials showLoginView();
 void showLoadingView(const std::string& message);
 bool showCreateAccountForm(UserMap& users);
-void showForgotForm();
-int showUserView(const User& currentUser);
+bool showForgotForm(UserMap& users);
 void showUser(const User& user, const std::string& decryptedPassword);
 std::string showChangePasswordForm(const std::string& targetUsername);
+void showNotification(std::string title, std::string line1, std::string line2 = "", int titleColor = 33);
+
 
 #endif

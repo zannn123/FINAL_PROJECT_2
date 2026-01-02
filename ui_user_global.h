@@ -4,10 +4,10 @@
 
 #ifndef FINALPROJECT2_UI_USER_H
 #define FINALPROJECT2_UI_USER_H
+#include <string>
+#include "globals.h"
 
-
-class ui_user {
-};
+int showUserView(const User& currentUser);
 
 
 #endif //FINALPROJECT2_UI_USER_H

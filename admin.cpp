@@ -99,3 +99,43 @@ bool Admin::deleteMessage(std::vector<Message>& allMessages, const Message& targ
     }
     return false; // Message not found
 }
+
+void Admin::resetPasswordToDefault(User &user) {
+    user.password = "default123"; // Set the temporary default password
+    user.resetRequested = false;  // Clear the orange flag
+    user.isLocked = false;        // Auto-unlock if they were locked
+}
+
+void Admin::updateRealName(User &user, string newName) {
+    if (!newName.empty()) {
+        user.realName = newName;
+    }
+}
+
+bool Admin::updateUsername(UserMap &users, string &targetUser, string newUsername) {
+    // 1. Validation
+    if (newUsername.empty()) return false;
+    if (users.find(newUsername) != users.end()) return false; // Already taken
+
+    // 2. Create New Entry
+    User &oldUser = users[targetUser];
+    User newUser = oldUser; // Copy data
+    newUser.username = newUsername; // Update internal field
+
+    // 3. Insert New & Erase Old
+    users[newUsername] = newUser;
+    users.erase(targetUser);
+
+    // 4. Update Friend Lists (Auto-Link Fixer)
+    string oldName = targetUser;
+    for (auto& entry : users) {
+        User& u = entry.second;
+        for (auto& conn : u.connections) {
+            if (conn == oldName) conn = newUsername;
+        }
+    }
+
+    // 5. Update the UI's target variable
+    targetUser = newUsername;
+    return true;
+}

@@ -1,5 +1,4 @@
 #include "ui_core.h"
-#include <algorithm>
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
@@ -269,18 +268,64 @@ void showLoadingView(const string& finalMessage) {
     ShowCursor();
 }
 
-void showForgotForm() {
+bool showForgotForm(UserMap& users) {
     system("cls");
     DrawStarField();
-    int startX = 35, startY = 8, w = 40, h = 10;
-    DrawCard(startX, startY, w, h);
+    int x = 35, startY = 8, w = 55, h = 14;
+    DrawCard(x, startY, w, h);
+
     SetColor(37);
-    GoToXY(startX + 12, startY + 2); cout << "RESET PASSWORD";
-    GoToXY(startX + 12, startY + 3); cout << "--------------";
-    GoToXY(startX + 4, startY + 6); cout << "Enter Username: [               ]";
-    GoToXY(startX + 21, startY + 6);
-    string dummy;
-    cin >> dummy;
+    GoToXY(x + 18, startY + 2); cout << "RESET PASSWORD";
+    GoToXY(x + 18, startY + 3); cout << "--------------";
+
+    // 1. Ask for Username
+    GoToXY(x + 4, startY + 6); cout << "Enter Username: ";
+    string targetUser = "";
+    activeInput(x + 20, startY + 6, targetUser);
+
+    // 2. Validate User Exists
+    if (users.find(targetUser) == users.end()) {
+        GoToXY(x + 4, startY + 8); SetColor(31);
+        cout << "Error: User not found!";
+        Sleep(1500);
+        return false; // <--- RETURN FALSE (Failed)
+    }
+
+    User& u = users[targetUser];
+
+    // 3. Retrieve Question
+    string questions[] = {
+        "What is your favorite animal?",
+        "What is your favorite interest?",
+        "What is your favorite object?",
+        "What city were you born in?"
+    };
+    string qText = (u.questionIndex >= 0 && u.questionIndex < 4) ? questions[u.questionIndex] : "Unknown";
+
+    // 4. Ask Question
+    GoToXY(x + 4, startY + 8); SetColor(37); cout << "Security Check:";
+    GoToXY(x + 4, startY + 9); SetColor(36); cout << qText;
+    GoToXY(x + 4, startY + 11); SetColor(37); cout << "Your Answer: ";
+
+    string inputAnswer = "";
+    activeInput(x + 17, startY + 11, inputAnswer);
+
+    // 5. Verify Answer
+    if (inputAnswer == u.securityAnswer) {
+        u.resetRequested = true; // Update memory only
+
+        GoToXY(x + 4, startY + 13); SetColor(32);
+        cout << "Request Sent! Admin notified.";
+        Beep(1000, 100);
+        Sleep(2000);
+        return true; // <--- RETURN TRUE (Success!)
+    } else {
+        GoToXY(x + 4, startY + 13); SetColor(31);
+        cout << "Incorrect Answer. Failed.";
+        Beep(200, 300);
+        Sleep(2000);
+        return false; // <--- RETURN FALSE (Failed)
+    }
 }
 
 bool showCreateAccountForm(UserMap& users) {
@@ -430,95 +475,6 @@ bool showCreateAccountForm(UserMap& users) {
     }
 }
 
-int showUserView(const User& currentUser) {
-    system("cls");
-    HideCursor();
-    DrawStarField();
-
-    DrawCard(5, 2, 110, 4);
-    DrawCard(5, 8, 35, 20);
-    DrawCard(42, 8, 73, 20);
-
-    SetColor(36); GoToXY(10, 4); cout << "USER DASHBOARD";
-    SetColor(90); cout << " | ";
-    SetColor(37); cout << "Welcome, " << currentUser.realName;
-
-    GoToXY(90, 4); SetColor(32); cout << "[ ONLINE ]";
-
-    const int MENU_SIZE = 5;
-    string menuItems[MENU_SIZE] = {
-        "Messaging Hub",
-        "My Connections",
-        "Add Friend",
-        "Profile Settings",
-        "Logout"
-    };
-
-    int selection = 0;
-    while(true) {
-        for(int i=0; i<MENU_SIZE; i++) {
-            int yPos = 12 + (i * 3);
-            GoToXY(8, yPos);
-
-            if(i == selection) {
-                SetColor(33);
-                cout << ">> " << menuItems[i] << " <<";
-            } else {
-                SetColor(90);
-                cout << "   " << menuItems[i] << "   ";
-            }
-        }
-
-        GoToXY(45, 12); SetColor(37); cout << "PREVIEW:";
-        GoToXY(45, 13); SetColor(90); cout << "---------------";
-        GoToXY(45, 15); SetColor(37);
-
-        if(selection == 0) {
-             cout << "Access all message functions:";
-             GoToXY(47, 17); SetColor(90); cout << "* Compose Message";
-             GoToXY(47, 18); cout << "* Inbox & Announcements";
-             GoToXY(47, 19); cout << "* Sent Items";
-        }
-        else if(selection == 1) {
-             cout << "Manage your network:";
-             GoToXY(47, 17); SetColor(90); cout << "* View Friend List";
-             GoToXY(47, 18); cout << "* Add/Remove Connections";
-        }
-        else if(selection == 2) {
-             cout << "Explore the database:";
-             GoToXY(47, 17); SetColor(90); cout << "* View All Registered Users";
-             GoToXY(47, 18); cout << "* Filter by Name";
-        }
-        else if(selection == 3) {
-             cout << "Account Management:";
-             GoToXY(47, 17); SetColor(90); cout << "* Edit Name & Description (Req 2.5)";
-             GoToXY(47, 18); cout << "* Change Password";
-        }
-        else if(selection == 4) {
-             cout << "Securely sign out of the application.";
-        }
-
-        int key = _getch();
-        if (key == 224) {
-            key = _getch();
-            if (key == 72) {
-                selection--;
-                if (selection < 0) selection = MENU_SIZE - 1;
-                Beep(600, 20);
-            }
-            if (key == 80) {
-                selection++;
-                if (selection >= MENU_SIZE) selection = 0;
-                Beep(600, 20);
-            }
-        }
-        else if (key == 13) {
-            Beep(1000, 50);
-            return selection + 1;
-        }
-    }
-}
-
 void showUser(const User& user, const string& decryptedPassword) {
     int x = 40;
     int y = 5;
@@ -633,4 +589,38 @@ string showChangePasswordForm(const string& targetUsername) {
     }
     SetColor(32); cout << "Success! Updating database...   "; drawButton(x + 15, y + 14, "> SAVED <"); Beep(1000, 100); Sleep(1000);
     return newPass;
+}
+
+void showNotification(string title, string line1, string line2, int titleColor) {
+    system("cls");
+    DrawStarField(); // Keep the consistent background
+
+    // 1. Draw the Centered Card
+    int x = 35;
+    int y = 10;
+    DrawCard(x, y, 60, 8);
+
+    // 2. Draw Title
+    GoToXY(x + 5, y + 2);
+    SetColor(titleColor); // Customizable Color (33=Orange, 32=Green, 31=Red)
+    cout << "[!] " << title;
+
+    // 3. Draw Message Line 1
+    GoToXY(x + 5, y + 4);
+    SetColor(37); // Always White for readability
+    cout << line1;
+
+    // 4. Draw Message Line 2 (Only if provided)
+    if (!line2.empty()) {
+        GoToXY(x + 5, y + 5);
+        cout << line2;
+    }
+
+    // 5. Footer
+    GoToXY(x + 5, y + 7);
+    SetColor(90); // Grey
+    cout << "Press any key to continue...";
+
+    // 6. Pause
+    _getch();
 }

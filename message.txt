@@ -498,3 +498,6 @@ noah_gonzales_133|xander_yap_32|General|Don't forget to submit the C++ project.|
 jose_santos_324|ivy_tan_379|General|Hey! Are we meeting for the group study?|0
 paul_santos_272|henry_dizon_117|General|Don't forget to submit the C++ project.|0
 grace_santos_183|kate_ramos_11|General|I finished the AVL Tree implementation.|0
+paul_santos_272|ALL|General|We survived everything except the version of us that actually happened.|1
+zann2|ALL|RE: General (@paul_santos_272)|k lng yan bro|1
+ivy_flores_45|ALL|General|In the end we only regret the chances we didn't take|1
