@@ -236,3 +236,140 @@ vector<Message> getConversationThread(const User& currentUser, const string& sub
     }
     return thread;
 }
+
+void removeStringFromVector(vector<string>& vec, const string& target) {
+    vec.erase(remove(vec.begin(), vec.end(), target), vec.end());
+}
+
+void serviceRemoveFriend(UserMap& users, User& currentUser, const string& targetUsername) {
+    removeStringFromVector(currentUser.connections, targetUsername);
+    if (users.find(targetUsername) != users.end()) {
+        removeStringFromVector(users[targetUsername].connections, currentUser.username);
+    }
+
+    // 3. Update the global UserMap with my changes
+    // (Since currentUser is a reference, it might already be updated, but this ensures safety)
+    users[currentUser.username] = currentUser;
+
+    // 4. Save Changes to Disk (Permanent)
+    saveUsers(users);
+}
+
+vector<User> serviceSearchUsers(const UserMap& users, const string& query) {
+    vector<User> results;
+    string q = query;
+    transform(q.begin(), q.end(), q.begin(), ::tolower);
+
+    for (const auto& entry : users) {
+        User u = entry.second;
+
+        // 1. Filter out Admin
+        if (u.username == "admin") continue;
+
+        // 2. If Query is Empty, Return EVERYONE
+        if (q.empty()) {
+            results.push_back(u);
+            continue;
+        }
+
+        // 3. Otherwise, Check for Match
+        string lowUser = u.username;
+        string lowName = u.realName;
+        transform(lowUser.begin(), lowUser.end(), lowUser.begin(), ::tolower);
+        transform(lowName.begin(), lowName.end(), lowName.begin(), ::tolower);
+
+        if (lowUser.find(q) != string::npos || lowName.find(q) != string::npos) {
+            results.push_back(u);
+        }
+    }
+    return results;
+}
+
+string serviceAddConnection(UserMap& users, User& currentUser, const string& targetUsername) {
+    if (targetUsername == currentUser.username) return "You cannot add yourself.";
+
+    for (const string& friendName : currentUser.connections) {
+        if (friendName == targetUsername) return "User is already in your connections.";
+    }
+
+    if (users.find(targetUsername) == users.end()) return "User not found.";
+
+    currentUser.connections.push_back(targetUsername);
+    users[currentUser.username] = currentUser;
+    saveUsers(users);
+
+    return "Success";
+}
+
+void serviceUpdateProfile(UserMap& users, User& currentUser, const string& newName, const string& newBio) {
+    // 1. Update the Object in Memory
+    currentUser.realName = newName;
+    currentUser.description = newBio;
+
+    // 2. Update the Global Map
+    users[currentUser.username] = currentUser;
+
+    // 3. Save to Disk
+    saveUsers(users);
+}
+
+void serviceChangePassword(UserMap& users, User& currentUser, const string& newPass) {
+    // 1. Update the Object
+    currentUser.password = newPass;
+    currentUser.isLocked = false; // Safety unlock
+
+    // 2. Update the Global Map
+    users[currentUser.username] = currentUser;
+
+    // 3. Save to Disk
+    saveUsers(users);
+}
+
+string serviceUpdateUsername(UserMap& users, User& currentUser, const string& newUsername) {
+    // 1. Validation
+    if (newUsername.empty()) return "Username cannot be empty.";
+    if (newUsername.length() < 3) return "Username too short.";
+
+    // 2. Check if Taken (Collision Detection)
+    if (users.find(newUsername) != users.end()) {
+        return "Username already exists!";
+    }
+
+    // 3. Prepare Data Migration
+    string oldUsername = currentUser.username;
+
+    // Create new entry with new key
+    User newUser = currentUser;
+    newUser.username = newUsername; // Update internal field
+
+    // 4. Update Database (Swap Keys)
+    users.erase(oldUsername);       // Delete old key
+    users[newUsername] = newUser;   // Insert new key
+
+    // 5. Update Local Object (So the UI doesn't break)
+    currentUser.username = newUsername;
+
+    // 6. Fix Friend Lists (Critical: Update everyone else's connections)
+    for (auto& entry : users) {
+        User& u = entry.second;
+        for (string& friendName : u.connections) {
+            if (friendName == oldUsername) {
+                friendName = newUsername; // Replace old name with new
+            }
+        }
+    }
+
+    // 7. Save Everything
+    saveUsers(users);
+
+    return "Success";
+}
+
+void serviceUpdateSecurityAnswer(UserMap& users, User& currentUser, int newQuestionIdx, const string& newAnswer) {
+    currentUser.questionIndex = newQuestionIdx;
+    currentUser.securityAnswer = newAnswer;
+
+    // Update Global Map & Save
+    users[currentUser.username] = currentUser;
+    saveUsers(users);
+}

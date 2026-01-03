@@ -23,6 +23,12 @@ std::string formatGroupMessage(const std::string& realMessage, const std::vector
 std::vector<Message> getInboxMessages(const User& currentUser, const std::vector<Message>& allMessages);
 std::vector<Message> getSentMessages(const User& currentUser, const std::vector<Message>& allMessages);
 std::vector<Message> getConversationThread(const User& currentUser, const std::string& rootSubject, const std::vector<Message>& allMessages);
-
+void serviceRemoveFriend(UserMap& users, User& currentUser, const std::string& targetUsername);
+std::vector<User> serviceSearchUsers(const UserMap& users, const std::string& query);
+std::string serviceAddConnection(UserMap& users, User& currentUser, const std::string& targetUsername);
+void serviceUpdateProfile(UserMap& users, User& currentUser, const std::string& newName, const std::string& newBio);
+void serviceChangePassword(UserMap& users, User& currentUser, const std::string& newPass);
+std::string serviceUpdateUsername(UserMap& users, User& currentUser, const std::string& newUsername);
+void serviceUpdateSecurityAnswer(UserMap& users, User& currentUser, int newQuestionIdx, const std::string& newAnswer);
 
 #endif //FINALPROJECT2_USER_H

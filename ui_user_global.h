@@ -8,6 +8,7 @@
 #include "globals.h"
 
 int showUserView(const User& currentUser);
+void showProfileSettings(User& currentUser, UserMap& users);
 
 
 #endif //FINALPROJECT2_UI_USER_H

@@ -51,13 +51,19 @@ int activeInput(int x, int y, string& data, bool isPwd) {
 
     while (true) {
         int key = _getch();
-        if (key == 13) return 1;
+
+        // --- ADD THIS LINE ---
+        if (key == 27) return -1; // [ESC] now returns -1 (Cancel Signal)
+        // ---------------------
+
+        if (key == 13) return 1;  // [ENTER] returns 1 (Success Signal)
+
         if (key == 224) {
             key = _getch();
-            if (key == 72) return -1;
-            if (key == 80) return 1;
+            if (key == 72) return -1; // Up Arrow also returns -1
+            if (key == 80) return 1;  // Down Arrow returns 1
         }
-        else if (key == 8) {
+        else if (key == 8) { // Backspace
             if (!data.empty()) {
                 data.pop_back();
                 cout << "\b \b";

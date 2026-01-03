@@ -9,6 +9,7 @@
 #include "ui_admin.h"
 #include "ui_user_global.h"
 #include "ui_user_message.h"
+#include "ui_user_connections.h"
 #include "admin.h"
 #include "user.h"
 
@@ -170,14 +171,17 @@ int main() {
                     // MESSAGES (Inbox, Create, Sent)
                 }
                 else if (choice == 3) {
+                    showConnectionsHub(currentUser, users);
                     // MY CONNECTIONS (View/Remove Friends)
                     // showConnectionsHub(currentUser, users); // <--- We will code this next!
                 }
                 else if (choice == 4) {
+                    showAddFriendMenu(currentUser, users);
                     // ADD FRIEND (Browse/Search)
                     // showAddFriendMenu(currentUser, users); // <--- We will code this next!
                 }
                 else if (choice == 5) {
+                    showProfileSettings(currentUser, users);
                     // PROFILE SETTINGS (Edit Name/Pass)
                     // showProfileSettings(currentUser, users); // <--- We will code this in ui_user_dashboard
                 }
