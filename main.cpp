@@ -166,6 +166,7 @@ int main() {
                     showAnnouncementFeed(currentUser, allMessages, users);
                 }
                 else if (choice == 2) {
+                    showMessenger(currentUser, allMessages, users);
                     // MESSAGES (Inbox, Create, Sent)
                 }
                 else if (choice == 3) {

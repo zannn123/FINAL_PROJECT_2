@@ -32,5 +32,7 @@ void showUser(const User& user, const std::string& decryptedPassword);
 std::string showChangePasswordForm(const std::string& targetUsername);
 void showNotification(std::string title, std::string line1, std::string line2 = "", int titleColor = 33);
 
+std::vector<std::string> wrapText(std::string text, int limit);
+
 
 #endif

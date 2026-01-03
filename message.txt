@@ -499,5 +499,12 @@ jose_santos_324|ivy_tan_379|General|Hey! Are we meeting for the group study?|0
 paul_santos_272|henry_dizon_117|General|Don't forget to submit the C++ project.|0
 grace_santos_183|kate_ramos_11|General|I finished the AVL Tree implementation.|0
 paul_santos_272|ALL|General|We survived everything except the version of us that actually happened.|1
-zann2|ALL|RE: General (@paul_santos_272)|k lng yan bro|1
 ivy_flores_45|ALL|General|In the end we only regret the chances we didn't take|1
+clara_flores_287|sam_villanueva_389,wendy_fernandez_462,frank_gonzales_141|Research|Hi, Please be reminded tommorow is our defense|0
+zann2|rose_dizon_103|Research|{GRP:xander_tolentino_29} Hiiiiii|0
+zann2|xander_tolentino_29|Research|{GRP:rose_dizon_103} Hiiiiii|0
+rose_dizon_103|zann2|RE: Research|{GRP:xander_tolentino_29} hello|0
+rose_dizon_103|xander_tolentino_29|RE: Research|{GRP:zann2} hello|0
+zann2|rose_dizon_103|RE: Research|{GRP:xander_tolentino_29} how are you?|0
+zann2|xander_tolentino_29|RE: Research|{GRP:rose_dizon_103} how are you?|0
+zann2|ALL|RE: General (@ivy_flores_45)|ay usad na po wkwkwkw|1

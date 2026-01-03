@@ -624,3 +624,20 @@ void showNotification(string title, string line1, string line2, int titleColor) 
     // 6. Pause
     _getch();
 }
+
+vector<string> wrapText(string text, int limit) {
+    vector<string> lines;
+    string currentLine = "";
+    string word;
+    stringstream ss(text);
+    while (ss >> word) {
+        if (currentLine.length() + word.length() + 1 > limit) {
+            lines.push_back(currentLine);
+            currentLine = word + " ";
+        } else {
+            currentLine += word + " ";
+        }
+    }
+    if (!currentLine.empty()) lines.push_back(currentLine);
+    return lines;
+}

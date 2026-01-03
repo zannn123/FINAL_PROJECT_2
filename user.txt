@@ -1,4 +1,4 @@
-zann2|zann123|zann cute|DEFAULT_USER|2|badminton| |0|0
+zann2|zann123|zann cute|DEFAULT_USER|2|badminton|rose_dizon_103,xander_tolentino_29|0|0
 rose_dizon_103|pass3292|Rose Dizon|I love food.|1|tech| |0|0
 xander_tolentino_29|pass3992|Xander Tolentino|DEFAULT_USER|1|music|juan_dizon_94|0|0
 juan_rivera_384|pass6953|Juan Rivera|I love cat.|2|food|clara_reyes_254|0|0
