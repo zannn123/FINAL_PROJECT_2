@@ -134,36 +134,9 @@ int showUserView(const User& currentUser) {
 // HELPER: SECURITY POPUP (Red "Admin Style")
 // =========================================================
 bool confirmPasswordAction(const User& currentUser) {
-    int x = 40, y = 10;
-    DrawCard(x, y, 40, 8);
-
-    GoToXY(x + 13, y + 2);
-    SetColor(31); // RED TEXT
-    cout << "SECURITY CHECK";
-
-    GoToXY(x + 2, y + 3);
-    SetColor(90); for(int i=0; i<36; i++) cout << "-";
-
-    GoToXY(x + 4, y + 5);
-    SetColor(37); cout << "Confirm Pass: ";
-
-    string input = "";
-    if (activeInput(x + 18, y + 5, input, true) == -1) return false;
-
-    if (input == currentUser.password) {
-        return true;
-    } else {
-        GoToXY(x + 12, y + 7);
-        SetColor(31); cout << "WRONG PASSWORD!";
-        Beep(500, 200);
-        Sleep(1000);
-        return false;
-    }
+    return ShowSecurityPopup(currentUser.password, "Confirm Pass:");
 }
 
-// =========================================================
-// SUB-MENU: EDIT PROFILE
-// =========================================================
 void performEditProfile(User& currentUser, UserMap& users) {
     int selection = 0;
     while(true) {
@@ -242,9 +215,6 @@ void performEditProfile(User& currentUser, UserMap& users) {
     }
 }
 
-// =========================================================
-// SUB-FEATURE: CHANGE PASSWORD
-// =========================================================
 void performChangePassword(User& currentUser, UserMap& users) {
     system("cls"); DrawStarField();
     int x = 35, y = 8, w = 60, h = 14;

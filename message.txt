@@ -508,3 +508,4 @@ rose_dizon_103|xander_tolentino_29|RE: Research|{GRP:zann2} hello|0
 zann2|rose_dizon_103|RE: Research|{GRP:xander_tolentino_29} how are you?|0
 zann2|xander_tolentino_29|RE: Research|{GRP:rose_dizon_103} how are you?|0
 zann2|ALL|RE: General (@ivy_flores_45)|ay usad na po wkwkwkw|1
+zann2|thebackburner|Rant|I am tired huhuh|0

@@ -647,3 +647,39 @@ vector<string> wrapText(string text, int limit) {
     if (!currentLine.empty()) lines.push_back(currentLine);
     return lines;
 }
+
+bool ShowSecurityPopup(const string& requiredPassword, const string& promptLabel) {
+    int x = 40, y = 10;
+    DrawCard(x, y, 40, 10);
+
+    GoToXY(x + 12, y + 2);
+    SetColor(31); // RED TEXT
+    cout << "SECURITY CHECK";
+
+    GoToXY(x + 2, y + 3);
+    SetColor(90); for(int i=0; i<36; i++) cout << "-";
+
+    GoToXY(x + 4, y + 5);
+    SetColor(37); cout << promptLabel;
+
+    // Instructions
+    GoToXY(x + 8, y + 8);
+    SetColor(90); cout << "[ESC] Cancel";
+    SetColor(37); cout << "  [ENTER] OK";
+
+    string input = "";
+    int labelLen = promptLabel.length();
+
+    // activeInput returns -1 if ESC is pressed
+    if (activeInput(x + 4 + labelLen + 1, y + 5, input, true) == -1) return false;
+
+    if (input == requiredPassword) {
+        return true;
+    } else {
+        GoToXY(x + 12, y + 7);
+        SetColor(31); cout << "WRONG PASSWORD!";
+        Beep(500, 200);
+        Sleep(1000);
+        return false;
+    }
+}

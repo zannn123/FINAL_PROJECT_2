@@ -5,9 +5,6 @@
 #include <vector>
 #include <unordered_map>
 
-// REMOVED "using namespace std;" to fix errors.
-// We use std::string, std::vector, etc.
-
 struct User {
     std::string username;
     std::string password;

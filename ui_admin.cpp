@@ -644,33 +644,5 @@ void showFullMessage(const Message& msg, const UserMap& users) {
 }
 
 bool confirmAdminPassword(string correctPassword) {
-    // 1. Draw a Red "Danger" Popup
-    int x = 40, y = 10;
-    DrawCard(x, y, 40, 8);
-
-    GoToXY(x + 12, y + 2);
-    SetColor(31); // RED TEXT
-    cout << "SECURITY CHECK";
-
-    GoToXY(x + 2, y + 3);
-    SetColor(90); for(int i=0; i<36; i++) cout << "-";
-
-    GoToXY(x + 4, y + 5);
-    SetColor(37); cout << "Confirm Pass: ";
-
-    // 2. Get Input (Masked with *)
-    string input = "";
-    // activeInput returns -1 if ESC is pressed
-    if (activeInput(x + 18, y + 5, input, true) == -1) return false;
-
-    // 3. Verify
-    if (input == correctPassword) {
-        return true;
-    } else {
-        GoToXY(x + 12, y + 7);
-        SetColor(31); cout << "WRONG PASSWORD!";
-        Beep(500, 200);
-        Sleep(1000);
-        return false;
-    }
+    return ShowSecurityPopup(correctPassword, "Admin Pass:");
 }

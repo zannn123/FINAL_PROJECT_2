@@ -7,12 +7,8 @@
 
 #include "globals.h"
 
-
-// LOAD: Reads text file -> Puts into Hash Map
 void loadUsers(UserMap& users);
 void loadMessages(std::vector<Message>& messages);
-
-// SAVE: Reads Hash Map -> Writes to text file
 void saveUsers(const UserMap& users);
 void saveMessages(const std::vector<Message>& messages);
 

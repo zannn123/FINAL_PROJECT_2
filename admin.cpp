@@ -97,13 +97,13 @@ bool Admin::deleteMessage(std::vector<Message>& allMessages, const Message& targ
             return true; // Success
             }
     }
-    return false; // Message not found
+    return false;
 }
 
 void Admin::resetPasswordToDefault(User &user) {
-    user.password = "default123"; // Set the temporary default password
-    user.resetRequested = false;  // Clear the orange flag
-    user.isLocked = false;        // Auto-unlock if they were locked
+    user.password = "default123";
+    user.resetRequested = false;
+    user.isLocked = false;
 }
 
 void Admin::updateRealName(User &user, string newName) {
@@ -113,20 +113,16 @@ void Admin::updateRealName(User &user, string newName) {
 }
 
 bool Admin::updateUsername(UserMap &users, string &targetUser, string newUsername) {
-    // 1. Validation
     if (newUsername.empty()) return false;
-    if (users.find(newUsername) != users.end()) return false; // Already taken
+    if (users.find(newUsername) != users.end()) return false;
 
-    // 2. Create New Entry
     User &oldUser = users[targetUser];
-    User newUser = oldUser; // Copy data
-    newUser.username = newUsername; // Update internal field
+    User newUser = oldUser;
+    newUser.username = newUsername;
 
-    // 3. Insert New & Erase Old
     users[newUsername] = newUser;
     users.erase(targetUser);
 
-    // 4. Update Friend Lists (Auto-Link Fixer)
     string oldName = targetUser;
     for (auto& entry : users) {
         User& u = entry.second;
@@ -135,7 +131,6 @@ bool Admin::updateUsername(UserMap &users, string &targetUser, string newUsernam
         }
     }
 
-    // 5. Update the UI's target variable
     targetUser = newUsername;
     return true;
 }
