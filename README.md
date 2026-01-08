@@ -1,7 +1,3 @@
-Here is a creative, professional, and visually structured **README.md** for your project. I have designed it to highlight the technical strengths you mentioned (custom UI engine, dependency injection, and no global variables).
-
-You can copy-paste this directly into your GitHub repository.
-
 ---
 
 # 📟 ConsoleConnect (C++ Social Platform)
